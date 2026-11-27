@@ -33,7 +33,12 @@ class Settings(BaseSettings):
     OPENAI_SEND_TEMPERATURE: bool = False
     TAVILY_API_KEY: str
 
-    @field_validator("OPENAI_REASONING_EFFORT", "OPENAI_TEMPERATURE", mode="before")
+    # CORS: comma-separated extra origins (e.g. https://my-app.vercel.app)
+    CORS_ORIGINS: str = ""
+    # Optional regex for origins, e.g. https://.*\.vercel\.app (covers preview URLs)
+    CORS_ORIGIN_REGEX: Optional[str] = None
+
+    @field_validator("OPENAI_REASONING_EFFORT", "OPENAI_TEMPERATURE", "CORS_ORIGIN_REGEX", mode="before")
     @classmethod
     def _empty_to_none(cls, v):
         return None if v == "" else v

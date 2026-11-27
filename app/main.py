@@ -38,7 +38,9 @@ app.add_middleware(
         "http://localhost:3000",  # Next.js dev server
         "http://127.0.0.1:3000",
         "http://localhost:3001",  # Alternative port
+        *[o.strip().rstrip("/") for o in settings.CORS_ORIGINS.split(",") if o.strip()],
     ],
+    allow_origin_regex=settings.CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
