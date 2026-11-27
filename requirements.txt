@@ -34,3 +34,7 @@ tavily-python
 markdown
 weasyprint
 
+
+# --- Testing ---
+pytest
+httpx
