@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="AI analysis illustration">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#dc2626"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <g stroke="#334155" stroke-width="1">
+    <path d="M0 100H800M0 200H800M0 300H800M0 400H800M0 500H800"/>
+    <path d="M100 0V600M200 0V600M300 0V600M400 0V600M500 0V600M600 0V600M700 0V600"/>
+  </g>
+  <g stroke="url(#accent)" stroke-width="3" fill="none" opacity="0.85">
+    <path d="M400 300L220 170M400 300L590 160M400 300L210 440M400 300L600 450M400 300L400 110M400 300L400 500"/>
+  </g>
+  <g fill="#0f172a" stroke="url(#accent)" stroke-width="4">
+    <circle cx="220" cy="170" r="26"/><circle cx="590" cy="160" r="26"/>
+    <circle cx="210" cy="440" r="26"/><circle cx="600" cy="450" r="26"/>
+    <circle cx="400" cy="110" r="22"/><circle cx="400" cy="500" r="22"/>
+  </g>
+  <circle cx="400" cy="300" r="78" fill="url(#accent)"/>
+  <text x="400" y="318" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700" fill="#fff">AI</text>
+</svg>

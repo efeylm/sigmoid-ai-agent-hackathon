@@ -1,0 +1,36 @@
+# --- Core API & DB ---
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+pydantic>=2.7,<3
+pydantic-settings>=2.4,<3
+python-dotenv==1.0.0
+
+
+# --- AI & Orchestration ---
+langchain
+langchain-community
+langchain-openai>=0.3
+langgraph
+openai
+
+# --- Scraping ---
+playwright==1.56.0
+beautifulsoup4
+requests
+
+# --- OCR & Image Processing ---
+# Senin kodunun kullandığı temel taşlar:
+pdf2image
+pytesseract
+opencv-python-headless==4.10.0.84
+pillow==10.2.0
+numpy==1.26.4
+ddddocr
+tavily-python
+
+# --- Report Generation ---
+markdown
+weasyprint
+
