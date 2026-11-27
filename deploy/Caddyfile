@@ -1,0 +1,11 @@
+# Automatic HTTPS (Let's Encrypt) for the backend API.
+{$DOMAIN} {
+	encode gzip
+	reverse_proxy backend:8000 {
+		# Report generation can take minutes
+		transport http {
+			read_timeout 15m
+			write_timeout 15m
+		}
+	}
+}

@@ -197,3 +197,7 @@ sigmoid-ai-agent-hackathon/
 
 ---
 **Geliştirici Notu**: Herhangi bir hata alırsanız, `app/logs` altındaki log dosyalarını kontrol edebilirsiniz.
+
+## ☁️ Canlıya Alma
+
+Backend için Oracle Cloud (Always Free) kurulumu: [deploy/README.md](deploy/README.md)
