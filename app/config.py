@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     # Optional regex for origins, e.g. https://.*\.vercel\.app (covers preview URLs)
     CORS_ORIGIN_REGEX: Optional[str] = None
 
+    # Access control: comma-separated access code(s). Empty = no code needed (local dev).
+    APP_ACCESS_CODE: str = ""
+    # Daily report generation limits (0 = unlimited). Reset at midnight server time.
+    REPORT_DAILY_LIMIT_PER_IP: int = 5
+    REPORT_DAILY_LIMIT_TOTAL: int = 30
+
     @field_validator("OPENAI_REASONING_EFFORT", "OPENAI_TEMPERATURE", "CORS_ORIGIN_REGEX", mode="before")
     @classmethod
     def _empty_to_none(cls, v):

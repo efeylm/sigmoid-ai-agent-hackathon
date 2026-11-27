@@ -39,6 +39,18 @@ Sonunda `HAZIR! API adresi: https://<ip-tireli>.sslip.io` yazar.
 - CORS: `*.vercel.app` varsayılan olarak izinli. Özel alan adı kullanırsan VM'deki `.env`'e
   `CORS_ORIGINS=https://alanadin.com` ekleyip setup.sh'ı tekrar çalıştır.
 
+## 5. Erişim kodu (maliyet koruması)
+VM'deki `~/app/.env` dosyasına ekle, sonra setup.sh'ı tekrar çalıştır:
+```
+APP_ACCESS_CODE=kodun-buraya
+REPORT_DAILY_LIMIT_PER_IP=5
+REPORT_DAILY_LIMIT_TOTAL=30
+```
+- Kod boşsa uygulama herkese açıktır. Doluysa site önce kod sorar, backend de kodsuz her `/api` isteğini reddeder.
+- Birden fazla kod virgülle verilebilir (`APP_ACCESS_CODE=cv2026,mulakat`): birini kaldırınca sadece o kod geçersiz olur.
+- Doğrudan açılan link: `https://<vercel-adresin>/?code=kodun-buraya` (kod tarayıcıda saklanır, adres çubuğundan silinir).
+- Limitler günlük, gece yarısı sıfırlanır; `0` sınırsız demektir.
+
 ## Güncelleme / bakım
 ```bash
 # Yeni kodu çek ve yeniden başlat

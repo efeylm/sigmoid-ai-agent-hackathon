@@ -6,8 +6,7 @@
 import { format } from "date-fns";
 import { ReportRequest, SearchAgentType } from "../types/report";
 
-// API base URL from environment variable
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { apiFetch } from "./access";
 
 /**
  * Formats a Date object to DD/MM/YYYY string format
@@ -54,7 +53,7 @@ export async function generateReport(
     agent_type: agentType,
   };
 
-  const response = await fetch(`${API_BASE_URL}/api/report/generate`, {
+  const response = await apiFetch("/api/report/generate", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -135,7 +134,7 @@ export interface ReportDetail {
  * Tüm raporları getirir
  */
 export async function fetchReports(): Promise<ReportListResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/report/list`);
+  const response = await apiFetch("/api/report/list");
 
   if (!response.ok) {
     throw new ReportAPIError("Raporlar getirilirken hata oluştu", response.status);
@@ -148,7 +147,7 @@ export async function fetchReports(): Promise<ReportListResponse> {
  * Belirli bir raporun detaylarını getirir
  */
 export async function fetchReportById(reportId: number): Promise<ReportDetail> {
-  const response = await fetch(`${API_BASE_URL}/api/report/${reportId}`);
+  const response = await apiFetch(`/api/report/${reportId}`);
 
   if (!response.ok) {
     throw new ReportAPIError("Rapor detayları getirilirken hata oluştu", response.status);

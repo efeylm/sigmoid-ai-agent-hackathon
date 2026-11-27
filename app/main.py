@@ -1,12 +1,13 @@
 # FastAPI application entry point
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.logger import logger
 from app.db import init_db, engine
-from app.api import public, health, companies, reports, records, queries, chunks
+from app.api import public, health, companies, reports, records, queries, chunks, auth
+from app.security import require_access_code, access_code_required
 from app.api.routers import news
 # YENİ ROUTER'I IMPORT ET
 from app.api.routers import intelligence
@@ -28,7 +29,11 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="Sigmoid AI Agent - Company Report Generation API",
-    lifespan=lifespan
+    lifespan=lifespan,
+    # Hide interactive docs when the API is locked with an access code
+    docs_url=None if access_code_required() else "/docs",
+    redoc_url=None if access_code_required() else "/redoc",
+    openapi_url=None if access_code_required() else "/openapi.json",
 )
 
 # AI-generated: CORS middleware for frontend communication
@@ -47,27 +52,32 @@ app.add_middleware(
 )
 
 # Include routers
+# Every /api route except /api/auth/status requires a valid access code
+protected = [Depends(require_access_code)]
+app.include_router(auth.router, prefix="/api")
 app.include_router(health.router)
-app.include_router(public.router, prefix="/api")
-app.include_router(companies.router, prefix="/api")
-app.include_router(reports.router, prefix="/api")
-app.include_router(records.router, prefix="/api")
-app.include_router(queries.router, prefix="/api")
-app.include_router(chunks.router, prefix="/api")
-app.include_router(news.router, prefix="/api")
+app.include_router(public.router, prefix="/api", dependencies=protected)
+app.include_router(companies.router, prefix="/api", dependencies=protected)
+app.include_router(reports.router, prefix="/api", dependencies=protected)
+app.include_router(records.router, prefix="/api", dependencies=protected)
+app.include_router(queries.router, prefix="/api", dependencies=protected)
+app.include_router(chunks.router, prefix="/api", dependencies=protected)
+app.include_router(news.router, prefix="/api", dependencies=protected)
 # YENİ: SİCİL AGENT ENDPOINT'İNİ EKLE
 # Artık /api/agent/sicil/generate-report adresinden ulaşılabilir olacak.
 app.include_router(
     intelligence.router, 
-    prefix="/api/intelligence", 
-    tags=["Company Intelligence Orchestrator"]
+    prefix="/api/intelligence",
+    tags=["Company Intelligence Orchestrator"],
+    dependencies=protected,
 )
 
 # NEW: AGENTIC REPORT ENDPOINT
 app.include_router(
     report.router,
     prefix="/api/report",
-    tags=["Agentic Report Generator"]
+    tags=["Agentic Report Generator"],
+    dependencies=protected,
 )
 
 if __name__ == "__main__":

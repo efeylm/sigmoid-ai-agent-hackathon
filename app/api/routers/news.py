@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.agents.news.service import NewsAgentService
 from app.agents.news.schemas import NewsSearchRequest, NewsResponse
+from app.security import limit_costly_request
 
 router = APIRouter()
 
-@router.post("/news/search", response_model=NewsResponse, tags=["News Agent"])
+@router.post("/news/search", response_model=NewsResponse, tags=["News Agent"], dependencies=[Depends(limit_costly_request)])
 async def search_company_news(
     request: NewsSearchRequest,
     db: Session = Depends(get_db)
