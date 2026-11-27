@@ -553,6 +553,7 @@ class ReportAgent:
                     logger.info(f"    Args: {tool_args}")
                     
                     tool_output = "Tool call failed or unknown."
+                    tool_error_msg = None
                     
                     if tool_name == "search_tavily":
                         logger.info(f"⏳ {tool_name} çalıştırılıyor...")
@@ -565,7 +566,9 @@ class ReportAgent:
                             elapsed_time = time.time() - start_time
                             logger.error(f"❌ {tool_name} BAŞARISIZ! ({elapsed_time:.2f} saniye)")
                             logger.error(f"   Hata: {tool_error}")
-                            raise
+                            # Keep going with the other sources instead of failing the whole report
+                            tool_error_msg = str(tool_error)
+                            tool_output = []
                         
                         raw_news = self._extract_news_from_tool_output(tool_output)
                         news_raw_data.extend(raw_news)
@@ -587,7 +590,9 @@ class ReportAgent:
                             elapsed_time = time.time() - start_time
                             logger.error(f"❌ {tool_name} BAŞARISIZ! ({elapsed_time:.2f} saniye)")
                             logger.error(f"   Hata: {tool_error}")
-                            raise
+                            # Keep going with the other sources instead of failing the whole report
+                            tool_error_msg = str(tool_error)
+                            tool_output = []
                         
                         raw_news = self._extract_news_from_tool_output(tool_output)
                         news_raw_data.extend(raw_news)
@@ -609,7 +614,9 @@ class ReportAgent:
                             elapsed_time = time.time() - start_time
                             logger.error(f"❌ {tool_name} BAŞARISIZ! ({elapsed_time:.2f} saniye)")
                             logger.error(f"   Hata: {tool_error}")
-                            raise
+                            # Keep going with the other sources instead of failing the whole report
+                            tool_error_msg = str(tool_error)
+                            tool_output = []
                         
                         sicil_raw_data = tool_output if isinstance(tool_output, list) else []
                         logger.info(f"📋 {len(sicil_raw_data)} adet sicil kaydı çıkarıldı")
@@ -632,7 +639,9 @@ class ReportAgent:
                             elapsed_time = time.time() - start_time
                             logger.error(f"❌ {tool_name} BAŞARISIZ! ({elapsed_time:.2f} saniye)")
                             logger.error(f"   Hata: {tool_error}")
-                            raise
+                            # Keep going with the other sources instead of failing the whole report
+                            tool_error_msg = str(tool_error)
+                            tool_output = []
                         
                         tender_ban_raw_data = tool_output if isinstance(tool_output, list) else []
                         logger.info(f"🚫 {len(tender_ban_raw_data)} adet ihale yasağı kaydı bulundu")
@@ -646,6 +655,13 @@ class ReportAgent:
                         tool_output = f"Error: Unknown tool {tool_name}"
                         logger.error(f"❌ Bilinmeyen tool çağrısı: {tool_name}")
                     
+                    if tool_error_msg:
+                        tool_output = (
+                            f"HATA: {tool_name} kaynağı sorgulanamadı ({tool_error_msg[:300]}). "
+                            "Bu kaynak için veri yok. Raporda 'kayıt bulunmadı' değil, "
+                            "'kaynak sorgulanamadı' olarak belirt."
+                        )
+
                     # Add tool message
                     tool_message_content = json.dumps(tool_output, default=str)
                     logger.info(f"📨 ToolMessage ekleniyor (ID: {tool_call['id']}, Boyut: {len(tool_message_content)} karakter)")

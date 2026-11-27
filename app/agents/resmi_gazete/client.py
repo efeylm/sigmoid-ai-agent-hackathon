@@ -98,18 +98,13 @@ class TenderBanClient:
                 return []
 
             # Tarih formatını dönüştür (DD/MM/YYYY -> YYYYMMDD)
-            start_date_formatted = self._convert_date_format(start_date) if start_date else None
-            end_date_formatted = self._convert_date_format(end_date) if end_date else None
             
             # OR koşulları ile dinamik query oluştur (SQLAlchemy text() ile güvenli)
             conditions = " OR ".join([f"banned_name ILIKE :pattern_{i}" for i in range(len(search_patterns))])
 
+            # tender_ban_records has no machine-readable date column (gazette_date is free text),
+            # so results are not filtered by date here.
             date_filter = ""
-            if start_date_formatted and end_date_formatted:
-                date_filter = """
-                    AND CAST((source_metadata->>'date') AS INTEGER) >= :start_date
-                    AND CAST((source_metadata->>'date') AS INTEGER) <= :end_date
-                """
             
             query = text(f"""
                 SELECT 
@@ -124,22 +119,20 @@ class TenderBanClient:
                     authority_district,
                     authority_phone_kep,
                     authority_email,
-                    banned_entity_type,
+                    entity_type,
                     banned_name,
                     banned_tc,
                     banned_tax_id,
                     banned_passport_no,
                     banned_address,
-                    ban_details_legal_basis,
-                    ban_details_scope,
-                    ban_details_duration,
-                    partner,
+                    legal_basis,
+                    ban_scope,
+                    ban_duration,
+                    partner_name,
                     partnership_info,
-                    source_metadata,
                     ban_reason,
                     gazette_date,
-                    gazette_no,
-                    created_at
+                    gazette_no
                 FROM public.tender_ban_records
                 WHERE ({conditions})
                 {date_filter}
@@ -149,28 +142,14 @@ class TenderBanClient:
             
             # Parametreleri dict olarak hazırla
             params = {f"pattern_{i}": pattern for i, pattern in enumerate(search_patterns)}
-            if start_date_formatted and end_date_formatted:
-                params["start_date"] = start_date_formatted
-                params["end_date"] = end_date_formatted
             
             result = db.execute(query, params)
             rows = result.fetchall()
             logger.info(f"📊 DB'den {len(rows)} adet ihale yasağı kaydı çekildi")
             logger.info(f"🔍 Arama pattern'leri: {search_patterns}")
-            if start_date_formatted and end_date_formatted:
-                logger.info(f"📅 Tarih filtresi: {start_date_formatted} - {end_date_formatted}")
             
             records = []
             for row in rows:
-                # source_metadata JSON'dan URL çıkar
-                source_url = None
-                if row.source_metadata:
-                    try:
-                        metadata = json.loads(row.source_metadata) if isinstance(row.source_metadata, str) else row.source_metadata
-                        source_url = metadata.get("source_url")
-                    except:
-                        pass
-                
                 records.append({
                     "id": row.id,
                     "banned_record_no": row.banned_record_no,
@@ -181,18 +160,19 @@ class TenderBanClient:
                     "authority_city": row.authority_city,
                     "authority_district": row.authority_district,
                     "authority_phone_kep": row.authority_phone_kep,
-                    "entity_type": row.banned_entity_type,
+                    "entity_type": row.entity_type,
                     "banned_name": row.banned_name,
                     "banned_tc": row.banned_tc,
                     "banned_tax_id": row.banned_tax_id,
                     "banned_address": row.banned_address,
-                    "legal_basis": row.ban_details_legal_basis,
-                    "ban_scope": row.ban_details_scope,
-                    "ban_duration": row.ban_details_duration,
+                    "legal_basis": row.legal_basis,
+                    "ban_scope": row.ban_scope,
+                    "ban_duration": row.ban_duration,
+                    "partner_name": row.partner_name,
                     "ban_reason": row.ban_reason,
                     "gazette_date": row.gazette_date,
                     "gazette_no": row.gazette_no,
-                    "source_url": source_url
+                    "source_url": None
                 })
             
             return records

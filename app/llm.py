@@ -32,6 +32,10 @@ def get_chat_llm(temperature: Optional[float] = None, **overrides: Any) -> ChatO
         "api_key": settings.OPENAI_API_KEY,
         "base_url": settings.OPENAI_BASE_URL,
         "model": settings.OPENAI_MODEL_NAME,
+        # Recent langchain-openai switches to the Responses API when tools are bound,
+        # which returns content as a list of blocks. The code expects plain strings
+        # from Chat Completions, so pin that API.
+        "use_responses_api": False,
     }
     params.update(_common_kwargs(temperature))
     params.update(overrides)
