@@ -72,6 +72,9 @@ async def search_sicil_gazetesi(company_name: str, start_date: str, end_date: st
         "analysis_results": []
     }
     result = await sicil_app.ainvoke(input_state)
+    if result.get("access_failed"):
+        # Surface access failures so the report says "could not be queried", not "no records"
+        raise RuntimeError(result.get("error") or "Sicil Gazetesi sorgulanamadı")
     analysis_results = result.get("analysis_results", [])
     
     serialized_results = []

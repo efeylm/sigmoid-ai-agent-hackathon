@@ -16,6 +16,7 @@ class SicilState(TypedDict):
     ocr_results: List[str]         
     analysis_results: List[Any]    
     error: Optional[str]
+    access_failed: Optional[bool]
 
 # --- 2. NODES ---
 
@@ -43,8 +44,7 @@ def scraper_node(state: SicilState):
         
     except Exception as e:
         logger.error(f"🔥 KRİTİK HATA (Scraper Node): {e}", exc_info=True)
-        traceback.print_exc()
-        return {"error": f"Scraper hatası: {str(e)}"}
+        return {"error": f"Scraper hatası: {str(e)}", "access_failed": True}
 
 def ocr_node(state: SicilState):
     """2. Adım: PDF Listesi üzerinde DÖNGÜ kurarak OCR yap"""

@@ -11,6 +11,10 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from app.logger import logger
 
+class SicilAccessError(RuntimeError):
+    """Sicil Gazetesi could not be queried at all (login/browser failure)."""
+
+
 class ScraperInput(BaseModel):
     company_name: str = Field(description="Aranacak şirketin tam ünvanı")
     start_date: Optional[str] = Field(None, description="Başlangıç tarihi (gg/aa/yyyy) formatında")
@@ -31,8 +35,8 @@ def _run_playwright_logic(company_name: str, start_date: Optional[str] = None, e
             logger.info("🔑 Giriş fonksiyonu çağrılıyor...")
             is_logged_in = auth.login(page)
             if not is_logged_in:
-                browser.close()
-                return [] 
+                # Raise so callers can tell "could not query" apart from "no records"
+                raise SicilAccessError("Sicil Gazetesi girişi başarısız (kullanıcı bilgileri veya captcha).")
             
             # 2. SEARCH
             logger.info(f"🔍 Şirket aranıyor: {company_name}")
@@ -71,13 +75,13 @@ def _run_playwright_logic(company_name: str, start_date: Optional[str] = None, e
 
         except Exception as e:
             logger.error(f"🔥 KRİTİK PLAYWRIGHT HATASI: {e}", exc_info=True)
-            import traceback
-            traceback.print_exc()
             try:
                 browser.close()
-            except:
+            except Exception:
                 pass
-            return []
+            if isinstance(e, SicilAccessError):
+                raise
+            raise SicilAccessError(f"Sicil Gazetesi taranamadı: {e}") from e
 
 @tool(args_schema=ScraperInput)
 def scrape_sicil_gazetesi(company_name: str, start_date: Optional[str] = None, end_date: Optional[str] = None):
