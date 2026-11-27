@@ -5,6 +5,7 @@ from typing import Optional, Dict, Any
 
 from app.db import get_db  # DB bağlantısı
 from app.services.orchestrator_service import run_full_process
+from app.security import limit_costly_request
 
 router = APIRouter()
 
@@ -22,7 +23,7 @@ class IntelligenceResponse(BaseModel):
     final_report: Optional[str]
     data_count: int
 
-@router.post("/analyze", response_model=IntelligenceResponse)
+@router.post("/analyze", response_model=IntelligenceResponse, dependencies=[Depends(limit_costly_request)])
 async def analyze_company(
     request: IntelligenceRequest,
     db: Session = Depends(get_db) # <--- DB Session buraya eklendi

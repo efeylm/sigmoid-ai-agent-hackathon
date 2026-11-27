@@ -5,8 +5,8 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Download, FileText, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { apiFetch } from "@/lib/api/access"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
 export default function ReportDetailPage() {
     const params = useParams()
@@ -23,14 +23,14 @@ export default function ReportDetailPage() {
                 setIsLoading(true)
 
                 // Önce rapor bilgisini al (şirket adı için)
-                const infoRes = await fetch(`${API_BASE_URL}/api/report/${reportId}`)
+                const infoRes = await apiFetch(`/api/report/${reportId}`)
                 if (infoRes.ok) {
                     const info = await infoRes.json()
                     setCompanyName(info.company_name)
                 }
 
                 // PDF'i fetch et
-                const pdfRes = await fetch(`${API_BASE_URL}/api/report/${reportId}/pdf`)
+                const pdfRes = await apiFetch(`/api/report/${reportId}/pdf`)
 
                 if (!pdfRes.ok) {
                     throw new Error("PDF yüklenemedi")

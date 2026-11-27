@@ -10,6 +10,7 @@ from datetime import datetime
 from app.db import get_db
 from app.agents.report_agent import ReportAgent, SearchAgentType
 from app.services.pdf_service import PDFService
+from app.security import limit_costly_request
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -44,7 +45,7 @@ def remove_file(path: str):
     except Exception:
         pass
 
-@router.post("/generate", response_class=FileResponse)
+@router.post("/generate", response_class=FileResponse, dependencies=[Depends(limit_costly_request)])
 async def generate_agentic_report(
     request: ReportRequest, 
     background_tasks: BackgroundTasks,
