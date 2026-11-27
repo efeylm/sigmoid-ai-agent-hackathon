@@ -50,19 +50,16 @@ def test_create_trade_registry_record(client: TestClient):
         "/api/records/trade-registry",
         json={
             "report_id": report["id"],
-            "gazette_date": "2024-01-01",
-            "mersis_no": "1234567890",
-            "capital_amount": "100K"
+            "summary": "Sermaye artırımı",
+            "risk_score": 2,
+            "details": {"Mersis No": "1234567890", "Sermaye": "100K"},
+            "announcement_date": "01.01.2024"
         }
     )
     assert response.status_code == 200
-    assert response.json()["mersis_no"] == "1234567890"
-
-    assert response.status_code == 200
-    assert response.json()["mersis_no"] == "1234567890"
-
-    assert response.status_code == 200
-    assert response.json()["mersis_no"] == "1234567890"
+    data = response.json()
+    assert data["summary"] == "Sermaye artırımı"
+    assert data["details"]["Mersis No"] == "1234567890"
 
 def test_get_records(client: TestClient):
     import uuid
@@ -91,11 +88,11 @@ def test_get_records(client: TestClient):
 
     # 3. Trade Registry
     trade = client.post("/api/records/trade-registry", json={
-        "report_id": report["id"], "gazette_date": "d", "mersis_no": f"m{uid}", "capital_amount": "c"
+        "report_id": report["id"], "summary": f"S {uid}", "details": {"Mersis No": f"m{uid}"}
     }).json()
     res = client.get(f"/api/records/trade-registry/{trade['id']}")
     assert res.status_code == 200
-    assert res.json()["mersis_no"] == f"m{uid}"
+    assert res.json()["details"]["Mersis No"] == f"m{uid}"
 
 def test_get_records_via_report_eager_loading(client: TestClient):
     import uuid

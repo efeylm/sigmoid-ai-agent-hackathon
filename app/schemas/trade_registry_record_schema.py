@@ -8,7 +8,6 @@ class TradeRegistryRecordBase(BaseModel):
     risk_score: Optional[int] = 0
     details: Optional[Dict[str, Any]] = None  # JSON içeriği buraya map edilecek
     announcement_date: Optional[str] = None
-    pdf_path: Optional[str] = None
 
 # Kayıt Oluştururken (Service içinde kullanılır)
 class TradeRegistryRecordCreate(TradeRegistryRecordBase):
